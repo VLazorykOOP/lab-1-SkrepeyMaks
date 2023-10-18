@@ -1,50 +1,40 @@
-﻿ // ArrayFile.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <ios>
 #include <vector>
-
 #include <time.h>
+#include <algorithm>
 
 using namespace std;
 
-typedef double* pDouble;
-/*
-*   ConsoleInputArrayDouble
-*   
-*/
+typedef int* pint;
+
+//Введення розміру масиву з перевіркою від 0 до макс. розміру
 int ConsoleInputSizeArray(const int sizeMax)
 {
-    int size = 0; 
+    int size = 0;
     do {
         cout << " Input size Array ( 0< 1 < " << sizeMax << " ) ";
         cin >> size;
     } while (size <= 0 || size >= sizeMax);
     return size;
 }
-/*
-*   ConsoleInputArrayDouble
-*
-*/
+
+//Заповнення масиву вручну
 int ConsoleInputArray(int sizeMax, double A[])
 {
     int size = ConsoleInputSizeArray(sizeMax);
-        for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         cout << " Array[ " << i << "] "; cin >> A[i];
     }
     return size;
 }
 
-/*
-*   RndInputArrayDouble
-*
-*/
+//Заповнення масиву випадковими числами з введеням розміру масива вручну
 int RndInputArray(int sizeMax, double A[])
 {
     int size = ConsoleInputSizeArray(sizeMax);
-    int r1=0, r2=0;
+    int r1 = 0, r2 = 0;
     srand(size);
 
     for (int i = 0; i < size; i++) {
@@ -57,10 +47,11 @@ int RndInputArray(int sizeMax, double A[])
     return size;
 }
 
-int ConsoleInputDynamicArrayNew(int sizeMax, pDouble &pA)
+//Заповнення динамічного масиву руками
+int ConsoleInputDynamicArrayNew(int sizeMax, pint& pA)
 {
     int size = ConsoleInputSizeArray(sizeMax);
-    pA = new double[size];
+    pA = new int[size];
     if (pA == nullptr) { return 0; }
     for (int i = 0; i < size; i++) {
         cout << " Array[ " << i << "] "; cin >> pA[i];
@@ -68,48 +59,40 @@ int ConsoleInputDynamicArrayNew(int sizeMax, pDouble &pA)
     return size;
 }
 
-int ConsoleInputDynamicArray_calloc(int sizeMax, pDouble& pA)
-{
-    int size = ConsoleInputSizeArray(sizeMax);
-    pA = (double*)calloc(size, sizeof(double));      // pA = (double*)malloc(size * sizeof(double)); 
-    if (pA == nullptr) { return 0; }
-    for (int i = 0; i < size; i++) {
-        cout << " Array[ " << i << "] "; cin >> pA[i];
-    }
-    return size;
-}
-
-void ConsoleInputVector(int sizeMax, vector<double> &A)
+//Заповнення вектора руками
+void ConsoleInputVector(int sizeMax, vector<double>& A)
 {
     int size = ConsoleInputSizeArray(sizeMax);
     double d;
     for (int i = 0; i < size; i++) {
         cout << " Array[ " << i << "] "; cin >> d; A.push_back(d);
     }
-    return ;
+    return;
 }
 
+//Заповнення вектору випадковими числами з введеням розміру масива вручну
+vector<int> RndInputVector(int sizeMax) {
+    srand(time(NULL));
+    vector<int> arr;
+    int size = ConsoleInputSizeArray(sizeMax);
+    for (int i = 0; i < size; i++) {
+        arr.push_back(rand() % 20 - 10);
+    }
+    return arr;
+}
 
-/*
-*  WriteArrayTextFile 
-*
-*/
-
-void WriteArrayTextFile(int n, double *arr, const char *fileName )
+//Запис масиву в файл
+void WriteArrayTextFile(int n, int* arr, const char* fileName)
 {
     ofstream fout(fileName);
     if (fout.fail()) return;
     fout << n << endl;
     for (int i = 0; i < n; i++)
         fout << arr[i] << "   ";
-    fout.close(); //
+    fout.close();
 }
-/*
-*  ReadArrayTextFile
-*
-*/
 
-
+//Зчитування масиву з файлу
 int ReadArrayTextFile(int n, double* arr, const char* fileName)
 {
     int size;
@@ -117,29 +100,29 @@ int ReadArrayTextFile(int n, double* arr, const char* fileName)
     if (fin.fail()) return 0;
     fin >> size;
     if (size <= 0) return 0;
-    if (size > n) size = n;   
+    if (size > n) size = n;
     for (int i = 0; i < n; i++)
-       fin>> arr[i];
+        fin >> arr[i];
     fin.close();
     return size;
-    
 }
 
-
+//Запис в бін файл
 void WriteArrayBinFile(int n, double* arr, const char* fileName)
 {
     //ios_base
     ofstream bfout(fileName, ios_base::binary);
     if (bfout.fail()) return;
     bfout.write((const char*)&n, sizeof(int));
-    std::streamsize  cn = static_cast<std::streamsize>(n) *sizeof(double);
+    std::streamsize  cn = static_cast<std::streamsize>(n) * sizeof(double);
     bfout.write((const char*)arr, cn);
     bfout.close();
 }
 
+//Читання бін файлу
 int ReadArrayBinFile(int n, double* arr, const char* fileName)
 {
-    int size=0;
+    int size = 0;
     ifstream bfin(fileName, ios_base::binary);
     if (bfin.fail()) return 0;
     bfin.read((char*)&size, sizeof(int));
@@ -151,139 +134,131 @@ int ReadArrayBinFile(int n, double* arr, const char* fileName)
     return size;
 }
 
+//Вивід меню завдань
 void ShowMainMenu()
 {
     cout << "    Main Menu  \n";
     cout << "    1.  Task 1  \n";
     cout << "    2.  Task 2  \n";
     cout << "    3.  Task 3  \n";
-  }
-
-void MenuTask()
-{
-    cout << "     Menu Task   \n";
-    cout << "    1.  Local array  \n";
-    cout << "    2.  Dynamic array 1 \n";
-    cout << "    3.  Dynamic array 2  new \n"; 
-    cout << "    4.  Dynamic array : vector \n";
-    cout << "    5.  Exit \n";
+    cout << "    5.  Exit  \n";
 }
 
-void MenuInput()
-{
-    cout << "     Menu Input   \n";
-    cout << "    1.  Console all \n";
-    cout << "    2.  Console - size, array - random \n";
-    cout << "    3.  File 1.txt \n";
-    cout << "    4.  bb    \n";
-    cout << "    5.  Exit \n";
-}
-
-
-/*
-* Задано одновимірний масив А розміру 2N. 
-* Побудувати два масиви В і С розміру N, 
-* включивши  у масив В елементи масиву А з парними індексами,
-* а у С - з непарними.
-*****************
-*  A - in 
-*  B, C - out 
-*/
-void  TestVariant(int N, double* A, double* B, double* C) {
-    for (int i = 0; i < N; i++) {
-        B[i] = A[2 * i];
-        C[i] = A[2 * i + 1];
+//17. Задано одновимірний масив А розміру N. Обчислити різницю суми додатних та суми від’ємних елементів масиву
+void Task1() {
+    int N = 1000, psum = 0, msum = 0;
+    vector<int> A = RndInputVector(N);
+    for (int i = 0; i < A.size(); i++) {
+        cout << A[i] << " ";
+        if (A[i] > 0) {
+            psum += A[i];
+        }
+        else {
+            msum += A[i];
+        }
     }
-}
-/*
-*  Task  Var
-* 
-* 
-*/
-void TaskV()
-{
-    char ch = '5';
-    do {
-        system("cls");
-        MenuTask();
-        ch = getchar();
-        getchar();
-            switch (ch) {
-             case '1': cout << " 1 "; break;
-             case '2': cout << " 2 "; break;
-            //
-            case '5': return;
-            }
-        cout << " Press any key and enter\n";
-        ch = getchar();
-        } while (ch != 27);
-    
+    cout << endl << "Difference:  " << psum - msum << endl;
+    system("pause");
 }
 
-void ArrayLocal()
+/*Зауваження. При розв’язуванні використати змінну(або декілька змінних) типу
+вказівник, яка би вказувала поточний елемент масиву(або на деякий елемент масиву), що
+розглядається (у приклад 5 змінна – вказівник pC вказує на поточний елемент масиву C).
+Заданий одномірний масив цілих чисел А розміру N.
+17. Знайти значення максимального елемента серед елементів, кратних k1 і
+розташованих до першого від’ємного елемента.*/
+void Task2() {
+    int size_max = 1000, k1;
+    pint pA;
+    int N = ConsoleInputDynamicArrayNew(size_max, pA);
+    cout << "k1: " << endl;
+    cin >> k1;
+    double maxElement = -numeric_limits<double>::infinity(); // Початкове значення максимального елемента
+    for (int i = 0; i < N; i++) {
+        if (pA[i] % k1 == 0) {
+            // Якщо елемент кратний k1, порівнюємо його з поточним максимумом
+            if (pA[i] > maxElement) {
+                maxElement = pA[i]; // Оновлюємо максимальний елемент
+            }
+        }
+        else if (pA[i] < 0) {
+            break; // Виходимо з циклу, якщо знайдено від'ємний елемент
+        }
+    }
+    if (maxElement == -numeric_limits<double>::infinity()) {
+        cout << "There are no multiple elements in the array " << k1 << "." << endl;
+    }
+    else {
+        cout << "Max element: " << maxElement << endl;
+    }
+
+    WriteArrayTextFile(N, pA, "array.txt");//запис масиву в файл
+    system("pause");
+}
+
+/*17. Задано масив цілих чисел
+A(n), n <= 400 , які можуть повторюватися. Розробити
+програму, яка відбирає з кожної групи рівних чисел по одному, і утворює новий масив
+B(n) та друкує його по сім чисел у рядку*/
+void Task3() {
+    int size_max = 401, k = 0;
+    vector<int> A = RndInputVector(size_max);
+    vector<int> B;
+
+    // Вивід масиву A
+    for (int i = 0; i < A.size(); i++) {
+        cout << A[i] << " ";
+    }
+    cout << endl << endl;
+
+    // Перевірка та створення вектора B
+    for (int i = 0; i < A.size() - 1; i++) {
+        if (A[i] == A[i + 1]) {
+            k++;
+        }
+        if (A[i] != A[i + 1] && k >= 1) {
+            B.push_back(A[i]);
+            k = 0;
+        }
+    }
+
+    // Вивід масиву B по 7 чисел у рядку
+    for (int i = 0; i < B.size(); i++) {
+        cout << B[i] << " ";
+        if ((i + 1) % 7 == 0) {
+            cout << endl;
+        }
+    }
+    cout << endl << endl;
+    A.clear();
+    B.clear();
+    system("pause");
+}
+
+//Вибір завданя
+void TaskSelect()
 {
-    double A[1000], B[500], C[500];
-    int n;
     char ch = '5';
     do {
         system("cls");
-        MenuTask();
+        ShowMainMenu();
         ch = getchar();
         getchar();
         switch (ch) {
-        case '1': cout << " 1 "; break;
-        case '2': cout << " 2 "; break;
-            //
+        case '1': cout << " Task 1:\n "; Task1(); break;
+        case '2': cout << " Task 2:\n "; Task2(); break;
+        case '3': cout << " Task 3:\n "; Task3(); break;
         case '5': return;
         }
         cout << " Press any key and enter\n";
         ch = getchar();
-    } while (ch != 27);
+    } while (ch != 27); //27 = escape
 
 }
 
 
 int main()
-{ 
-    
-    
-    
-    const int MAX_SIZE = 560;
-    std::cout << "Hello World!\n";
-    ShowMainMenu();
-    /*
-    double A[MAX_SIZE], B[MAX_SIZE],C[MAX_SIZE];
-    int n,m;
-    n = RndInputArray(MAX_SIZE, A);
-    WriteArrayTextFile(n, A, "1.txt");
-    m = ReadArrayTextFile(MAX_SIZE, B, "1.txt");
-    cout << " \n m= " << m << endl;
-    for (int i = 0; i < m; i++)
-        cout << B[i] << "   ";
-    WriteArrayBinFile(n, A, "1.bin");
-    m = ReadArrayBinFile(MAX_SIZE, C, "1.bin");
-    cout << " \n m= " << m << endl;
-    for (int i = 0; i < m; i++)
-        cout << C[i] << "   ";
-    cout << "\n  Vector \n";
-    vector<double> vA;
-    ConsoleInputVector(MAX_SIZE, vA);
-    for (auto v : vA) {
-        cout << v << "   ";
-    }
-*/
-    TaskV();
+{
+    TaskSelect();
     return 1;
-
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
